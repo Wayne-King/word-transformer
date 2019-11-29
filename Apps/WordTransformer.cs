@@ -25,7 +25,7 @@ namespace WayneKing.Practice.Apps
             this.wordModulator = wordModulator;
         }
 
-        public void Transform(string from, string to)
+        public string[] Transform(string from, string to)
         {
             if (string.IsNullOrEmpty(from))
                 throw new ArgumentNullException(nameof(from));
@@ -42,8 +42,7 @@ namespace WayneKing.Practice.Apps
                 if (node.Word == to)
                 {
                     // hit goal
-                    PublishTransformationRoute(node);
-                    return;
+                    return GetRouteTo(node);
                 }
 
                 ModulateAndTraverse(node);
@@ -51,9 +50,10 @@ namespace WayneKing.Practice.Apps
             } while (!traversal.IsEmpty);
 
             // transform not possible
+            return new string[0];
         }
 
-        private void PublishTransformationRoute(TransformationNode node)
+        private string[] GetRouteTo(TransformationNode node)
         {
             var stack = new Stack<string>();
             do
@@ -61,10 +61,7 @@ namespace WayneKing.Practice.Apps
                 stack.Push(node.Word);
             } while ((node = node.Parent) != null);
 
-            while (stack.Count > 0)
-            {
-                Console.WriteLine(stack.Pop());
-            }
+            return stack.ToArray();
         }
 
         protected virtual void ModulateAndTraverse(TransformationNode node)

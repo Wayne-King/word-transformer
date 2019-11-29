@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using WayneKing.Practice.Abstractions;
 using WayneKing.Practice.Apps;
@@ -15,11 +16,15 @@ namespace WayneKing.Practice
 
             IServiceProvider services = ConfigureServices().BuildServiceProvider();
             var xformer = services.GetRequiredService<WordTransformer>();
+            var publisherFactory = services.GetRequiredService<IWordListPublisherFactory>();
 
+            IList<string> result;
             if (args.Length == 2)
-                xformer.Transform(args[0], args[1]);
+                result = xformer.Transform(args[0], args[1]);
             else
-                xformer.Transform("goat", "floats");
+                result = xformer.Transform("goat", "floats");
+
+            publisherFactory.CreatePublisher(result).Publish();
 
             Console.WriteLine("<<goodbye>>");
         }
@@ -37,6 +42,8 @@ namespace WayneKing.Practice
                     .AddSingleton<IWordDictionary>(GetLoadedDictionary())
 
                     .AddSingleton<IWordModulator, WordModulator>()
+                    .AddSingleton<IWordListPublisherFactory, ConsolePublisherFactory>()
+
                     .AddSingleton<WordTransformer, WordTransformerWithMonitor>();
         }
 
